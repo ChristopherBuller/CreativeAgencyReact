@@ -8,10 +8,17 @@ const gqlEndpoint = SUPABASE_URL
   ? `${SUPABASE_URL.replace(/\/$/, '')}/graphql/v1`
   : '/api/graphql'
 
+// Preview mode: no backend configured
+export const IS_PREVIEW = !SUPABASE_URL
+
 export type GraphQLRequestOptions = {
   headers?: Record<string, string>
   variables?: Record<string, unknown>
   signal?: AbortSignal
+}
+
+function isMutation(query: string) {
+  return /^\s*mutation\b/i.test(query)
 }
 
 export async function graphqlRequest<T = unknown>(
@@ -20,6 +27,15 @@ export async function graphqlRequest<T = unknown>(
   opts: GraphQLRequestOptions = {},
 ): Promise<T> {
   const body = typeof query === 'string' ? query : query.loc?.source.body ?? query.toString()
+
+  // Preview mode — no backend wired up yet
+  if (IS_PREVIEW) {
+    if (isMutation(body)) {
+      throw new Error('PREVIEW_MODE')
+    }
+    // Queries return empty shell so list pages render with empty state
+    return {} as T
+  }
 
   const res = await fetch(gqlEndpoint, {
     method: 'POST',

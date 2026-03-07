@@ -1,5 +1,6 @@
 ﻿import React from 'react'
-import { NavLink, Outlet } from 'react-router'
+import { NavLink, Outlet, Link } from 'react-router'
+import { IS_PREVIEW } from '../lib/graphql/client'
 
 const NAV_ITEMS = [
   
@@ -41,7 +42,13 @@ const NAV_ITEMS = [
 
 export default function AppLayout() {
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-gray-50">
+      {IS_PREVIEW && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center justify-between text-sm text-amber-800 shrink-0">
+          <span>Preview mode — data is read-only. <Link to="/" className="underline font-medium">Get early access</Link> to create and edit records.</span>
+        </div>
+      )}
+    <div className="flex flex-1 min-h-0 bg-gray-50">
       {/* Sidebar */}
       <aside className="w-56 bg-white border-r border-gray-200 flex flex-col">
         <div className="px-4 py-5 border-b border-gray-200">
@@ -70,6 +77,7 @@ export default function AppLayout() {
       <main className="flex-1 overflow-y-auto">
         <Outlet />
       </main>
+    </div>
     </div>
   )
 }
